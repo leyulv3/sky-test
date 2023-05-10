@@ -16,7 +16,7 @@ public interface EmployeeService {
 
     boolean editPassword(PasswordEditDTO editDTO);
 
-    boolean updateEmp(Employee employee);
+    boolean updateEmp(EmployeeDTO employeeDTO);
 
     Employee selectById(Long id);
 

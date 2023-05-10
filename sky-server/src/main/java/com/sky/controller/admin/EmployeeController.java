@@ -8,6 +8,7 @@ import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +24,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/employee")
 @Slf4j
+@Api("员工管理")
 public class EmployeeController {
-
-
     @Autowired
     private EmployeeService employeeService;
     @Autowired
@@ -104,9 +104,8 @@ public class EmployeeController {
      */
     @ApiOperation("修改信息")
     @PutMapping()
-    public Result updateEmp(@RequestBody Employee employee) {
-        log.info("employee:{}", employee);
-        employeeService.updateEmp(employee);
+    public Result updateEmp(@RequestBody EmployeeDTO employeeDTO) {
+        employeeService.updateEmp(employeeDTO);
         return Result.success();
     }
 

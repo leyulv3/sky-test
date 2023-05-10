@@ -2,13 +2,10 @@ package com.sky.controller.admin;
 
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
-import com.sky.dto.PageResult;
 import com.sky.entity.Category;
-import com.sky.mapper.CategoryMapper;
 import com.sky.result.Result;
 import com.sky.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,8 +46,8 @@ public class CategoryController {
      * 修改分类
      */
     @PutMapping()
-    public Result updateEmp(@RequestBody Category category){
-        categoryService.updateEmp(category);
+    public Result updateEmp(@RequestBody CategoryDTO categoryDTO){
+        categoryService.updateEmp(categoryDTO);
         return Result.success();
     }
     /**

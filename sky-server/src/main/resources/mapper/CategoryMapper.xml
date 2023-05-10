@@ -20,7 +20,7 @@
             <if test="createUser!=null and createUser!=''">
                 create_user=#{createUser},
             </if>
-            <if test="updateUser!=null and update_user!=''">
+            <if test="updateUser!=null and updateUser!=''">
                 update_user=#{updateUser},
             </if>
             update_time=now()

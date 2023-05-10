@@ -12,7 +12,7 @@ public interface CategoryService {
 
     void changeStatus(Integer status,Long id);
 
-    void updateEmp(Category category);
+    void updateEmp(CategoryDTO categoryDTO);
 
     void deleteEmp(Long id);
 }

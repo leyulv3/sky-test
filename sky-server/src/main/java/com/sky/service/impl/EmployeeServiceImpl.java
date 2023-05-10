@@ -73,29 +73,40 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public PageResult page(EmployeePageQueryDTO queryDTO) {
+        //使用分页插件，传入page、pageSize字段
         PageHelper.startPage(queryDTO.getPage(), queryDTO.getPageSize());
+        //根据传入条件进行查询
         List<Employee> employees = employeeMapper.selectEmpPage(queryDTO.getName());
         Page<Employee> p = (Page<Employee>) employees;
+        //将查询结果封存到PageResult中返回结果
         return new PageResult(p.getTotal(), p.getResult());
     }
 
     @Override
     public boolean editPassword(PasswordEditDTO editDTO) {
-        Employee employee = new Employee();
+
         //1、判断密码是否正确
+        //查询密码
         String pwd = employeeMapper.selectEmpPwd(editDTO.getEmpId());
-        log.info("id:{}", editDTO);
+        //如果没有查询到密码，返回false代表查询失败
         if (pwd == null) return false;
+        //将传入旧密码进行md5加密
         String password = DigestUtils.md5DigestAsHex(editDTO.getOldPassword().getBytes());
+        //将加密的密码与数据库查询到的密码进行比对
         if (!password.equals(pwd)) return false;
-        //3、执行密码修改
-        employee.setPassword(DigestUtils.md5DigestAsHex(editDTO.getNewPassword().getBytes()));
-        employee.setId(editDTO.getEmpId());
+        //2、执行密码修改
+        Employee employee = Employee.builder()
+                .password(DigestUtils.md5DigestAsHex(editDTO.getNewPassword().getBytes()))
+                .id(editDTO.getEmpId()).build();
         return employeeMapper.updateEmp(employee);
     }
 
     @Override
-    public boolean updateEmp(Employee employee) {
+    public boolean updateEmp(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO,employee);
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateTime(LocalDateTime.now());
         return employeeMapper.updateEmp(employee);
     }
 
@@ -107,16 +118,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void saveEmp(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
-        //将DTO中的属性保存到实体类中
+        //1、将DTO中的属性复制到实体类中
         BeanUtils.copyProperties(employeeDTO, employee);
-        //设置状态
+        //2、设置状态
         employee.setStatus(StatusConstant.DISABLE);
-        //设置初始密码
+        //3、设置初始密码
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
-        //设置创建时间
+        //4、设置创建时间
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
-        //设置当前记录创建人id和修改人id
+        //5、设置当前记录创建人id和修改人id
         Long createId = BaseContext.getCurrentId();
         employee.setCreateUser(createId);
         employee.setUpdateUser(createId);
@@ -125,9 +136,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void changeStatus(Integer status, Long id) {
-        Employee employee = new Employee();
-        employee.setStatus(status);
-        employee.setId(id);
+        Employee employee = Employee.builder().status(status).id(id).build();
         employeeMapper.updateEmp(employee);
     }
 }
