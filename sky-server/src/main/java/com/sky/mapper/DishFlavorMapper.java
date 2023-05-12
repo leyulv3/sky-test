@@ -12,4 +12,6 @@ public interface DishFlavorMapper {
      * @param flavors
      */
     void insertSetmeal(List<DishFlavor> flavors);
+
+    void deleteDishByIds(Integer[] ids);
 }

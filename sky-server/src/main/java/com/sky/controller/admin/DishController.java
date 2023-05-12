@@ -41,7 +41,7 @@ public class DishController {
     }
     @DeleteMapping
     public Result deleteDish(Integer[] ids){
-
+        dishService.deleteDishByIds(ids);
         return Result.success();
     }
 

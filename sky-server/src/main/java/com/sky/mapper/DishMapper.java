@@ -21,4 +21,5 @@ public interface DishMapper {
     @Select("select * from dish where id=#{id}")
     DishVO selectById(Integer id);
 
+    void deleteDishByIds(Integer[] ids);
 }

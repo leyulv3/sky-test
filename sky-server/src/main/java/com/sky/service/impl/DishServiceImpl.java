@@ -62,4 +62,11 @@ public class DishServiceImpl implements DishService {
     public DishVO selectDishById(Integer id) {
         return dishMapper.selectById(id);
     }
+
+    @Override
+    @Transactional
+    public void deleteDishByIds(Integer[] ids) {
+        dishMapper.deleteDishByIds(ids);
+        dishFlavorMapper.deleteDishByIds(ids);
+    }
 }

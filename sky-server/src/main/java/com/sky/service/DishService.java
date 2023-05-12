@@ -14,4 +14,6 @@ public interface DishService {
     PageResult pageDish(DishPageQueryDTO dishQuery);
 
     DishVO selectDishById(Integer id);
+
+    void deleteDishByIds(Integer[] ids);
 }
