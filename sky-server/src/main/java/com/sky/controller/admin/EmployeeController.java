@@ -99,7 +99,7 @@ public class EmployeeController {
     /**
      * 修改信息
      *
-     * @param employee
+     * @param employeeDTO
      * @return Result
      */
     @ApiOperation("修改信息")

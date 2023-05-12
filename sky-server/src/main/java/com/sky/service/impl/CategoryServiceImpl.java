@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -37,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public boolean addCategory(CategoryDTO categoryDTO) {
+    public void addCategory(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO, category);
         category.setStatus(StatusConstant.DISABLE);
@@ -45,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setUpdateTime(LocalDateTime.now());
         category.setCreateUser(BaseContext.getCurrentId());
         category.setUpdateUser(BaseContext.getCurrentId());
-        return categoryMapper.insertCategory(category) == 1;
+        categoryMapper.insertCategory(category);
     }
 
     @Override
@@ -71,18 +72,24 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteEmp(Long id) {
-        //查询当前类是否有关联菜品 如果有则抛出异常
+        //1、查询当前分类是否有关联菜品 如果有则抛出异常
         int count = dishMapper.countByCategoryId(id);
         if (count > 0) {
             //当前分类下有菜品，不能删除
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
         }
-        //查询当前分类是否关联了套餐，如果关联了就抛出业务异常
+        //2、查询当前分类是否关联了套餐，如果关联了就抛出业务异常
         count = setmealMapper.countByCategoryId(id);
         if (count > 0) {
             //当前分类下有菜品，不能删除
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
         }
+        //删除数据
         categoryMapper.deleteEmp(id);
+    }
+
+    @Override
+    public List<Category> list(Integer type) {
+        return categoryMapper.selectByType(type);
     }
 }

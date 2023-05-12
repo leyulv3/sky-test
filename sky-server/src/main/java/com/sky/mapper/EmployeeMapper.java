@@ -1,10 +1,10 @@
 package com.sky.mapper;
 
-import com.sky.dto.PasswordEditDTO;
+import com.sky.annotation.AutoFill;
 import com.sky.entity.Employee;
+import com.sky.enumeration.OperationType;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public interface EmployeeMapper {
     @Select("select * from employee where id=#{id}")
     Employee selectEmpById(Long id);
 
-
+    @AutoFill(OperationType.UPDATE)
     boolean updateEmp(Employee employee);
 
     @Select("select password from employee where id=#{id}")
