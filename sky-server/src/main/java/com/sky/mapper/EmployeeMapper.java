@@ -31,5 +31,6 @@ public interface EmployeeMapper {
     @Select("select password from employee where id=#{id}")
     String selectEmpPwd(Long empId);
 
+    @AutoFill(OperationType.INSERT)
     void insertEmp(Employee employee);
 }

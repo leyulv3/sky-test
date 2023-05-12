@@ -7,13 +7,19 @@ import com.sky.entity.Dish;
 import com.sky.vo.DishVO;
 import io.swagger.models.auth.In;
 
+import java.util.List;
+
 public interface DishService {
 
     void saveDish(DishDTO dishDTO);
 
     PageResult pageDish(DishPageQueryDTO dishQuery);
 
-    DishVO selectDishById(Integer id);
+    DishVO selectDishById(Long id);
 
-    void deleteDishByIds(Integer[] ids);
+    void deleteDishByIds(List<Long> ids);
+
+    void changeStatus(Integer status,Long id);
+
+    void updateDish(DishDTO dishDTO);
 }

@@ -3,6 +3,7 @@ package com.sky.controller.admin;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.dto.PageResult;
+import com.sky.entity.Dish;
 import com.sky.result.Result;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
@@ -21,28 +22,36 @@ public class DishController {
     private DishService dishService;
 
     @PostMapping
-    public Result saveDish(@RequestBody DishDTO dishDTO){
+    public Result saveDish(@RequestBody DishDTO dishDTO) {
         dishService.saveDish(dishDTO);
         return Result.success();
     }
+
     @GetMapping("/page")
-    public Result<PageResult> pageDish(DishPageQueryDTO dishQuery){
+    public Result<PageResult> pageDish(DishPageQueryDTO dishQuery) {
         return Result.success(dishService.pageDish(dishQuery));
     }
+
     @GetMapping("/{id}")
-    public Result<DishVO> selectDish(@PathVariable Integer id){
+    public Result<DishVO> selectDish(@PathVariable Long id) {
         return Result.success(dishService.selectDishById(id));
     }
 
-    @PutMapping
-    public Result updateDish(@RequestBody DishDTO dishDTO){
-        log.info("dishDTO:{}",dishDTO);
-        return Result.success();
-    }
+
     @DeleteMapping
-    public Result deleteDish(Integer[] ids){
+    public Result deleteDish(List<Long> ids) {
         dishService.deleteDishByIds(ids);
         return Result.success();
     }
 
+    @PostMapping("/status/{status}")
+    public Result changeStatus(@PathVariable Integer status, Long id) {
+        dishService.changeStatus(status, id);
+        return Result.success();
+    }
+    @PutMapping
+    public Result updateDish(@RequestBody DishDTO dishDTO){
+        dishService.updateDish(dishDTO);
+        return Result.success();
+    }
 }

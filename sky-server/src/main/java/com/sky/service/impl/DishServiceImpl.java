@@ -20,8 +20,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -43,7 +47,7 @@ public class DishServiceImpl implements DishService {
         log.info("dishId:{}", dish.getId());
         //插入口味
         List<DishFlavor> flavors = dishDTO.getFlavors();//前端传过来的口味
-        if (flavors != null && flavors.size() > 0) {    //如果有口味
+        if (!CollectionUtils.isEmpty(flavors)) {    //如果有口味
             flavors.forEach(flavor -> {                 //遍历口味
                 flavor.setDishId(dish.getId());         //设置dishId
             });
@@ -59,14 +63,37 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public DishVO selectDishById(Integer id) {
-        return dishMapper.selectById(id);
+    public DishVO selectDishById(Long id) {
+        DishVO dishVO = dishMapper.selectById(id);
+        List<DishFlavor> dishFlavors = dishFlavorMapper.selectFlavorById(id);
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
     }
 
     @Override
     @Transactional
-    public void deleteDishByIds(Integer[] ids) {
+    public void deleteDishByIds(List<Long> ids) {
         dishMapper.deleteDishByIds(ids);
         dishFlavorMapper.deleteDishByIds(ids);
+    }
+
+    @Override
+    public void changeStatus(Integer status, Long id) {
+        Dish dish = Dish.builder().status(status).id(id).build();
+        dishMapper.updateDish(dish);
+    }
+
+    @Override
+    @Transactional
+    public void updateDish(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        //更新dish表中的基本数据
+        dishMapper.updateDish(dish);
+        //删除原有的口味数据
+        List<Long> ids = Collections.singletonList(dishDTO.getId());
+        dishFlavorMapper.deleteDishByIds(ids);
+        //重新插入口味数据
+        dishFlavorMapper.insertSetmeal(dishDTO.getFlavors());
     }
 }
