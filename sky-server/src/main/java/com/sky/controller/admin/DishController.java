@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("admin/dish")
 @Slf4j
@@ -35,6 +37,11 @@ public class DishController {
     @PutMapping
     public Result updateDish(@RequestBody DishDTO dishDTO){
         log.info("dishDTO:{}",dishDTO);
+        return Result.success();
+    }
+    @DeleteMapping
+    public Result deleteDish(Integer[] ids){
+
         return Result.success();
     }
 

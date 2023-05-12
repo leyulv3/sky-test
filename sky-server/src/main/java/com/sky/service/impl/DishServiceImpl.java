@@ -20,11 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -46,12 +42,12 @@ public class DishServiceImpl implements DishService {
         dishMapper.insertDish(dish);
         log.info("dishId:{}", dish.getId());
         //插入口味
-        List<DishFlavor> flavors = dishDTO.getFlavors();
-        if (flavors != null && flavors.size() > 0) {
-            flavors.forEach(flavor -> {
-                flavor.setDishId(dish.getId());
+        List<DishFlavor> flavors = dishDTO.getFlavors();//前端传过来的口味
+        if (flavors != null && flavors.size() > 0) {    //如果有口味
+            flavors.forEach(flavor -> {                 //遍历口味
+                flavor.setDishId(dish.getId());         //设置dishId
             });
-            dishFlavorMapper.insertSetmeal(flavors);
+            dishFlavorMapper.insertSetmeal(flavors);    //插入口味
         }
     }
 
