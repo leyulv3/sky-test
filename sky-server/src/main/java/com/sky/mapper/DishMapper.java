@@ -21,9 +21,13 @@ public interface DishMapper {
 
     List<DishVO> selectDishPage(DishPageQueryDTO dishQuery);
     @Select("select * from dish where id=#{id}")
-    DishVO selectById(Long id);
+    Dish selectById(Long id);
 
     void deleteDishByIds(List<Long> ids);
     @AutoFill(OperationType.UPDATE)
     void updateDish(Dish dish);
+    @Select("select * from dish where category_id=#{categoryId}")
+    List<DishVO> selectByCategoryId(Long categoryId);
+
+    List<Dish> selectByIds(List<Long> ids);
 }

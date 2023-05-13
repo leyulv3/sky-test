@@ -22,4 +22,6 @@ public interface DishService {
     void changeStatus(Integer status,Long id);
 
     void updateDish(DishDTO dishDTO);
+
+    List<DishVO> list(Long categoryId);
 }

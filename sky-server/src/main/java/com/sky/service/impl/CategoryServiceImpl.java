@@ -12,7 +12,7 @@ import com.sky.entity.Category;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.CategoryMapper;
 import com.sky.mapper.DishMapper;
-import com.sky.mapper.SetmealMapper;
+import com.sky.mapper.SetMealMapper;
 import com.sky.service.CategoryService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +28,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private DishMapper dishMapper;
     @Autowired
-    private SetmealMapper setmealMapper;
+    private SetMealMapper setMealMapper;
 
     @Override
     public PageResult categoryPage(CategoryPageQueryDTO page) {
+        //分页查询
         PageHelper.startPage(page.getPage(), page.getPageSize());
+        //查询数据
         Page<Category> category = categoryMapper.selectPage(page.getName(), page.getType());
+        //返回结果
         return new PageResult(category.getTotal(), category.getResult());
     }
 
@@ -42,10 +45,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO, category);
         category.setStatus(StatusConstant.DISABLE);
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
-        category.setCreateUser(BaseContext.getCurrentId());
-        category.setUpdateUser(BaseContext.getCurrentId());
         categoryMapper.insertCategory(category);
     }
 
@@ -54,8 +53,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = Category.builder()
                 .id(id)
                 .status(status)
-                .updateTime(LocalDateTime.now())
-                .updateUser(BaseContext.getCurrentId())
                 .build();
         categoryMapper.updateCategory(category);
     }
@@ -79,7 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
         }
         //2、查询当前分类是否关联了套餐，如果关联了就抛出业务异常
-        count = setmealMapper.countByCategoryId(id);
+        count = setMealMapper.countByCategoryId(id);
         if (count > 0) {
             //当前分类下有菜品，不能删除
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);

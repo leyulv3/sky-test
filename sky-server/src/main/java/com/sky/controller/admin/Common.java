@@ -17,7 +17,11 @@ import java.util.UUID;
 public class Common {
     @Autowired
     AliOssUtil aliOssUtil;
-
+    /**
+     * 上传图片
+     * @param file 图片文件
+     * @return 上传结果
+     */
     @PostMapping("/upload")
     public Result uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
         //获取原始文件名

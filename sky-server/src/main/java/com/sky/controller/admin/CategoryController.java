@@ -20,54 +20,67 @@ public class CategoryController {
     private CategoryService categoryService;
 
     /**
-     * 分页
+     * 分页查询分类
+     * @param page 分页信息
+     * @return 分页结果
      */
     @GetMapping("/page")
-    public Result<PageResult> categoryPage(CategoryPageQueryDTO page){
-        log.info("page:{}",page);
+    public Result<PageResult> categoryPage(CategoryPageQueryDTO page) {
         return Result.success(categoryService.categoryPage(page));
     }
 
     /**
-     * 新增分类
-     * @param category
-     * @return
+     * 添加分类
+     * @param category 分类信息
+     * @return 添加结果
      */
     @PostMapping()
-    public Result<String> addCategory(@RequestBody CategoryDTO category){
+    public Result<String> addCategory(@RequestBody CategoryDTO category) {
         categoryService.addCategory(category);
         return Result.success();
     }
+
     /**
-     * 更改状态
+     * 修改分类状态
+     * @param status 1:启用 0:禁用
+     * @param id 分类id
+     * @return 修改结果
      */
     @PostMapping("/status/{status}")
-    public Result<String> changeStatus(@PathVariable Integer status, Long id){
-        categoryService.changeStatus(status,id);
+    public Result<String> changeStatus(@PathVariable Integer status, Long id) {
+        categoryService.changeStatus(status, id);
         return Result.success();
     }
+
     /**
-     * 修改分类
+     * 更新分类
+     * @param categoryDTO 分类信息
+     * @return 更新结果
      */
     @PutMapping()
-    public Result<String> updateEmp(@RequestBody CategoryDTO categoryDTO){
+    public Result<String> updateEmp(@RequestBody CategoryDTO categoryDTO) {
         categoryService.updateEmp(categoryDTO);
         return Result.success();
     }
+
     /**
      * 删除分类
+     * @param id 分类id
+     * @return 删除结果
      */
     @DeleteMapping
-    public Result<String> deleteEmp(Long id){
+    public Result<String> deleteEmp(Long id) {
         categoryService.deleteEmp(id);
         return Result.success();
     }
+
     /**
-     * 根据类型查询分类信息
+     * 查询分类
+     * @param type 1:菜单 2:套餐
+     * @return 分类列表
      */
     @GetMapping("/list")
-    public Result<List<Category>> list(Integer type){
-        log.info("type:{}",type);
+    public Result<List<Category>> list(Integer type) {
         return Result.success(categoryService.list(type));
     }
 

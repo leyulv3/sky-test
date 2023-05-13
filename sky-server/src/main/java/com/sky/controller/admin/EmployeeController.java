@@ -32,18 +32,14 @@ public class EmployeeController {
     private JwtProperties jwtProperties;
 
     /**
-     * 登录
-     *
-     * @param employeeLoginDTO
-     * @return
+     * 添加员工
+     * @param employeeLoginDTO 员工信息
+     * @return 添加结果
      */
     @ApiOperation("登录")
     @PostMapping("/login")
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
-        log.info("员工登录：{}", employeeLoginDTO);
-
         Employee employee = employeeService.login(employeeLoginDTO);
-
         //登录成功后，生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
@@ -64,7 +60,7 @@ public class EmployeeController {
     /**
      * 退出
      *
-     * @return
+     * @return Result
      */
     @ApiOperation("退出")
     @PostMapping("/logout")
@@ -87,7 +83,7 @@ public class EmployeeController {
     /**
      * 修改密码
      *
-     * @param editDTO
+     * @param editDTO 修改密码参数
      * @return Result
      */
     @ApiOperation("修改密码")
@@ -99,7 +95,7 @@ public class EmployeeController {
     /**
      * 修改信息
      *
-     * @param employeeDTO
+     * @param employeeDTO 修改信息参数
      * @return Result
      */
     @ApiOperation("修改信息")
@@ -112,8 +108,8 @@ public class EmployeeController {
     /**
      * 根据id查询信息
      *
-     * @param id
-     * @return
+     * @param id id
+     * @return Result<Employee>
      */
     @ApiOperation("根据id查询信息")
     @GetMapping("/{id}")
@@ -124,8 +120,8 @@ public class EmployeeController {
     /**
      * 新增用户
      *
-     * @param employee
-     * @return
+     * @param employee 用户信息
+     * @return Result
      */
     @ApiOperation("新增用户")
     @PostMapping()
@@ -136,6 +132,10 @@ public class EmployeeController {
 
     /**
      * 更改状态
+     *
+     * @param status 状态
+     * @param id     id
+     * @return Result
      */
     @ApiOperation("更改状态")
     @PostMapping("/status/{status}")

@@ -15,4 +15,7 @@
             #{id}
         </foreach>
     </delete>
+    <select id="selectByDishId" resultType="java.lang.Long">
+        select setmeal_id from setmeal_dish where dish_id =#{id}
+    </select>
 </mapper>

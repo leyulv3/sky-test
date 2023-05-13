@@ -67,4 +67,13 @@
         </where>
 
     </select>
+    <select id="selectByIds" resultType="com.sky.entity.Dish">
+        select * from dish
+        <where>
+            id in
+            <foreach collection="ids" separator="," item="id" open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
 </mapper>
