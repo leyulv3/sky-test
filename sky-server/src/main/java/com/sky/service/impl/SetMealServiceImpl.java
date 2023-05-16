@@ -91,8 +91,8 @@ public class SetMealServiceImpl implements SetMealService {
     /**
      * 根据id查询套餐数据
      *
-     * @param id
-     * @return
+     * @param id 套餐id
+     * @return 套餐信息
      */
     @Override
     public SetmealVO getSetMeal(Long id) {
@@ -130,8 +130,8 @@ public class SetMealServiceImpl implements SetMealService {
     @Override
     @Transactional
     public void changeStatus(Integer status, Long id) {
-        //判断当前套餐是否有未启用菜品
-        List<SetmealDish> setmealDishes = setMealDishMapper.selectSetMealDishById(id);
+        //判断当前套餐是否有未启用菜品2
+        List<SetmealDish> setmealDishes =  setMealDishMapper.selectSetMealDishById(id);
         //根据状态判断是否要进行菜品状态的判断
         if (status == 1) {
             //循环判断查看菜品状态是否有未启售

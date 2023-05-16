@@ -11,6 +11,5 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class SkyApplication {
     public static void main(String[] args) {
         SpringApplication.run(SkyApplication.class, args);
-        log.info("server started");
     }
 }
