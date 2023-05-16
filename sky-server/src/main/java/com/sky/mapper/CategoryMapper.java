@@ -50,6 +50,6 @@ public interface CategoryMapper {
      * @param type
      * @return
      */
-    @Select("select id,name from category where type=#{type} order by sort")
+
     List<Category> selectByType(Integer type);
 }

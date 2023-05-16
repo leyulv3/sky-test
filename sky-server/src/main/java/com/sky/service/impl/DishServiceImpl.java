@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -139,5 +140,15 @@ public class DishServiceImpl implements DishService {
     @Override
     public List<DishVO> list(Long categoryId) {
         return dishMapper.selectByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<DishVO> listWithFlavor(Dish dish) {
+        List<DishVO> dishList = dishMapper.selectWithFlavor(dish);
+        dishList.forEach(dishVO -> {
+            List<DishFlavor> dishFlavors = dishFlavorMapper.selectFlavorById(dishVO.getId());
+            dishVO.setFlavors(dishFlavors);
+        });
+        return dishList;
     }
 }

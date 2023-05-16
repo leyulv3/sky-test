@@ -16,6 +16,7 @@ import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetMealDishMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.service.SetMealService;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.DishVO;
 import com.sky.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
@@ -131,7 +132,7 @@ public class SetMealServiceImpl implements SetMealService {
     @Transactional
     public void changeStatus(Integer status, Long id) {
         //判断当前套餐是否有未启用菜品2
-        List<SetmealDish> setmealDishes =  setMealDishMapper.selectSetMealDishById(id);
+        List<SetmealDish> setmealDishes = setMealDishMapper.selectSetMealDishById(id);
         //根据状态判断是否要进行菜品状态的判断
         if (status == 1) {
             //循环判断查看菜品状态是否有未启售
@@ -144,4 +145,22 @@ public class SetMealServiceImpl implements SetMealService {
         Setmeal setmeal = Setmeal.builder().status(status).id(id).build();
         setMealMapper.updateSetMeal(setmeal);
     }
+
+    /**
+     * 条件查询
+     *
+     * @param setmeal
+     * @return
+     */
+    public List<Setmeal> list(Setmeal setmeal) {
+        List<Setmeal> list = setMealMapper.list(setmeal);
+        return list;
+    }
+
+    @Override
+    public List<DishItemVO> getDishItemById(Long id) {
+        return setMealMapper.getDishItemBySetmealId(id);
+    }
+
+
 }

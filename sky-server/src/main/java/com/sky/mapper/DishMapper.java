@@ -30,4 +30,6 @@ public interface DishMapper {
     List<DishVO> selectByCategoryId(Long categoryId);
 
     List<Dish> selectByIds(List<Long> ids);
+
+    List<DishVO> selectWithFlavor(Dish dish);
 }

@@ -1,38 +1,33 @@
 package com.sky.controller.user;
 
 import com.sky.result.Result;
-
+import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
-
-@RestController("UserShopController")
+@RestController("userShopController")
 @RequestMapping("/user/shop")
+@Api(tags = "状态相关接口")
+@Slf4j
 public class ShopController {
     @Autowired
     private RedisTemplate redisTemplate;
-    private final static String shopStatus = "SHOP_STATUS";
+    private static final String shopStatus = "SHOP_STATUS";
 
+    /**
+     * 获取营业状态
+     *
+     * @return
+     */
     @GetMapping("/status")
-    public Result getStatus() {
+    public Result<Integer> getStatus() {
+        //获取营业状态
         ValueOperations valueOperations = redisTemplate.opsForValue();
-        return Result.success(valueOperations.get(shopStatus));
-    }
-
-    @GetMapping()
-    public Result getName() {
-        return Result.success("成功");
-    }
-
-    @PostMapping()
-    public Result postShop(@RequestBody Map<String, Object> data) {
-        int id = (int) data.get("id");
-        String name = (String) data.get("name");
-        // 处理请求，返回响应
-        return Result.success("id=" + id + ", name=" + name);
+        Integer status = (Integer) valueOperations.get(shopStatus);
+        return Result.success(status);
     }
 }

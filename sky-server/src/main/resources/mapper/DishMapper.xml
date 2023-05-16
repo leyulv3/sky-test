@@ -76,4 +76,7 @@
             </foreach>
         </where>
     </select>
+    <select id="selectWithFlavor" resultType="com.sky.vo.DishVO">
+        select *,c.name from dish d left join category c on d.category_id=c.id where category_id=#{categoryId}
+    </select>
 </mapper>
