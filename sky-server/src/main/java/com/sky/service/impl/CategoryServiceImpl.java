@@ -64,7 +64,6 @@ public class CategoryServiceImpl implements CategoryService {
         //设置修改时间、修改人
         categoryMapper.updateCategory(category);
     }
-
     @Override
     public void deleteEmp(Long id) {
         //1、查询当前分类是否有关联菜品 如果有则抛出异常

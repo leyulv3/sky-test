@@ -2,15 +2,12 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.google.gson.Gson;
-import com.sky.annotation.AutoFill;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.*;
 import com.sky.entity.Employee;
-import com.sky.enumeration.OperationType;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
@@ -21,7 +18,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -72,7 +68,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         //3、返回实体对象
         return employee;
     }
-
+    /**
+     * 新增员工
+     *
+     * @param employeeDTO
+     */
     @Override
     public PageResult page(EmployeePageQueryDTO queryDTO) {
         //使用分页插件，传入page、pageSize字段
@@ -83,7 +83,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         //将查询结果封存到PageResult中返回结果
         return new PageResult(p.getTotal(), p.getResult());
     }
-
+    /**
+     * 修改密码
+     * @param editDTO 密码修改信息
+     * @return 修改结果
+     */
     @Override
     public boolean editPassword(PasswordEditDTO editDTO) {
 
@@ -102,21 +106,32 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .id(editDTO.getEmpId()).build();
         return employeeMapper.updateEmp(employee);
     }
-
+    /**
+     * 修改员工信息
+     *
+     * @param employeeDTO 员工信息
+     */
     @Override
-    public boolean updateEmp(EmployeeDTO employeeDTO) {
+    public void updateEmp(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO,employee);
         employee.setUpdateUser(BaseContext.getCurrentId());
         employee.setUpdateTime(LocalDateTime.now());
-        return employeeMapper.updateEmp(employee);
+        employeeMapper.updateEmp(employee);
     }
-
+    /**
+     * 通过id查询员工信息
+     * @param id 员工id
+     * @return 员工信息
+     */
     @Override
     public Employee selectById(Long id) {
         return employeeMapper.selectEmpById(id);
     }
-
+    /**
+     * 保存员工信息
+     * @param employeeDTO 员工信息
+     */
     @Override
     public void saveEmp(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
@@ -135,7 +150,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         //employee.setUpdateUser(createId);
         employeeMapper.insertEmp(employee);
     }
-
+    /**
+     * 通过id修改员工状态
+     * @param status 状态
+     * @param id 员工id
+     */
     @Override
     public void changeStatus(Integer status, Long id) {
         Employee employee = Employee.builder().status(status).id(id).build();

@@ -33,6 +33,7 @@ public class EmployeeController {
 
     /**
      * 添加员工
+     *
      * @param employeeLoginDTO 员工信息
      * @return 添加结果
      */
@@ -47,7 +48,6 @@ public class EmployeeController {
                 jwtProperties.getAdminSecretKey(),
                 jwtProperties.getAdminTtl(),
                 claims);
-
         EmployeeLoginVO employeeLoginVO = EmployeeLoginVO.builder()
                 .id(employee.getId())
                 .userName(employee.getUsername())

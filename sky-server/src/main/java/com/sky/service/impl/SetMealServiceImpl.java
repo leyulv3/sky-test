@@ -131,7 +131,7 @@ public class SetMealServiceImpl implements SetMealService {
     @Override
     @Transactional
     public void changeStatus(Integer status, Long id) {
-        //判断当前套餐是否有未启用菜品2
+        //判断当前套餐是否有未启用菜品
         List<SetmealDish> setmealDishes = setMealDishMapper.selectSetMealDishById(id);
         //根据状态判断是否要进行菜品状态的判断
         if (status == 1) {
@@ -153,8 +153,7 @@ public class SetMealServiceImpl implements SetMealService {
      * @return
      */
     public List<Setmeal> list(Setmeal setmeal) {
-        List<Setmeal> list = setMealMapper.list(setmeal);
-        return list;
+        return setMealMapper.list(setmeal);
     }
 
     @Override
