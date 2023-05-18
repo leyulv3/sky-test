@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
-import com.sky.context.BaseContext;
 import com.sky.dto.PageResult;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
@@ -17,7 +16,6 @@ import com.sky.mapper.SetMealDishMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.service.SetMealService;
 import com.sky.vo.DishItemVO;
-import com.sky.vo.DishVO;
 import com.sky.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,8 +147,8 @@ public class SetMealServiceImpl implements SetMealService {
     /**
      * 条件查询
      *
-     * @param setmeal
-     * @return
+     * @param setmeal 条件
+     * @return 结果
      */
     public List<Setmeal> list(Setmeal setmeal) {
         return setMealMapper.list(setmeal);
@@ -160,6 +158,4 @@ public class SetMealServiceImpl implements SetMealService {
     public List<DishItemVO> getDishItemById(Long id) {
         return setMealMapper.getDishItemBySetmealId(id);
     }
-
-
 }
