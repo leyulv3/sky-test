@@ -30,4 +30,6 @@ public interface ShoppingCartMapper {
     void delete(ShoppingCart cart);
     @Delete("delete from shopping_cart where user_id=#{currentId}")
     void clean(Long currentId);
+
+    void insertBatch(List<ShoppingCart> shoppingCartList);
 }

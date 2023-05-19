@@ -2,10 +2,58 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.OrderMapper">
+    <update id="updateById">
+    update orders
+    <set>
+        <if test="payStatus != null">pay_status = #{payStatus},</if>
+        <if test="payMethod != null">pay_method = #{payMethod},</if>
+        <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+        <if test="cancelReason != null">cancel_reason = #{cancelReason},</if>
+        <if test="status != null">status = #{status},</if>
+        <if test="deliveryStatus != null">delivery_status = #{deliveryStatus},</if>
+        <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+        <if test="checkoutTime != null">checkout_time = #{checkoutTime},</if>
+        <if test="rejectionReason != null and rejectionReason != ''">rejection_reason = #{rejectionReason},</if>
+        <if test="estimatedDeliveryTime != null">estimated_delive = #{estimatedDeliveryTime},</if>
+    </set>
+where
+    <if test="id != null"> id = #{id}</if>
+    <if test="id==null and number != null"> number = #{number}</if>
+</update>
 
 
     <select id="selectHistoryOrders" resultType="com.sky.entity.Orders">
-        select * from orders where user_id=#{userId} <if test="status!=null"> and status=#{status}</if>
+        select * from orders where user_id=#{userId}
+        <if test="status!=null">and status=#{status}</if>
         order by order_time desc
+    </select>
+    <select id="selectByOrderId" resultType="com.sky.entity.Orders">
+        select *
+        from orders
+        where id = #{id}
+    </select>
+    <select id="selectSearch" resultType="com.sky.vo.OrderVO">
+        select * from orders
+
+        <where>
+            <if test="number!=null and number!=''">
+                number like concat('%',#{number},'%')
+            </if>
+            <if test="phone!=null and phone!=''">
+                and phone=#{phone}
+            </if>
+            <if test="beginTime!=null">
+                and order_time between #{beginTime} and #{endTime}
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+        </where>
+        order by order_time desc
+    </select>
+    <select id="selectStatistics" resultType="java.lang.Integer">
+        select count(*)
+        from orders
+        where status = #{status}
     </select>
 </mapper>
