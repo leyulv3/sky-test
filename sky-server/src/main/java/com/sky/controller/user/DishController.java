@@ -24,7 +24,7 @@ public class DishController {
     private DishService dishService;
     @Autowired
     private RedisTemplate redisTemplate;
-    @Cacheable(value = "DishCache",key = "#p0")
+    //@Cacheable(value = "DishCache",key = "#p0")
     @GetMapping("/list")
     public Result<List<DishVO>> list(Long categoryId) {
         //构造redis中的key

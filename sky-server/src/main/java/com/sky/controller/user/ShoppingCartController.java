@@ -22,27 +22,23 @@ public class ShoppingCartController {
     @Autowired
     private ShoppingCartService shoppingCartService;
 
-    //@PostMapping("/add")
-    //@CachePut(value = "shoppingCart", key = "#user.id")
+    @PostMapping("/add")
     public Result add(@RequestBody ShoppingCartDTO shoppingCartDTO) {
         shoppingCartService.add(shoppingCartDTO);
         return Result.success();
     }
 
-    //@CacheEvict(value = "shoppingCart", key = "#user.id")
     @PostMapping("/sub")
     public Result sub(@RequestBody ShoppingCartDTO shoppingCartDTO) {
         shoppingCartService.sub(shoppingCartDTO);
         return Result.success();
     }
 
-    //@Cacheable(value = "shoppingCart", key = "#result.getMsg()[0]")
     @GetMapping("/list")
     public Result<List<ShoppingCart>> list() {
         return Result.success(shoppingCartService.list());
     }
 
-    //@CacheEvict(value = "shoppingCart",allEntries = true)
     @DeleteMapping("/clean")
     public Result clean() {
         shoppingCartService.clean();

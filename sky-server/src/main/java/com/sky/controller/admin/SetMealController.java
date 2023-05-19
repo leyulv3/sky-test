@@ -77,7 +77,7 @@ public class SetMealController {
 
     //更改状态
     @PostMapping("/status/{status}")
-    @CacheEvict(value = "setmealCache", key = "#id")
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public Result changeStatus(@PathVariable Integer status, Long id) {
         setMealService.changeStatus(status, id);
         return Result.success();

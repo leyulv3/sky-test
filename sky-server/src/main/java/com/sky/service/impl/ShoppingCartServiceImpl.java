@@ -26,7 +26,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public void add(ShoppingCartDTO shoppingCartDTO) {
-
         //1、只能查询自己的购物车数据
         ShoppingCart shoppingCart = new ShoppingCart();
         BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
