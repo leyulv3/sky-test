@@ -1,5 +1,8 @@
 package com.sky.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -11,11 +14,14 @@ import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
 import com.sky.entity.ShoppingCart;
 import com.sky.exception.AddressBookBusinessException;
+import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.OrderBusinessException;
 import com.sky.mapper.AddressBookMapper;
 import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.service.OrderService;
+import com.sky.utils.HttpClientUtil;
 import com.sky.vo.OrderOverViewVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
@@ -24,14 +30,13 @@ import io.jsonwebtoken.lang.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.sky.entity.Orders.PENDING_PAYMENT;
@@ -39,6 +44,12 @@ import static com.sky.entity.Orders.PENDING_PAYMENT;
 @Service
 @Slf4j
 public class OrderServiceImpl implements OrderService {
+    @Value("${sky.shop.AK}")
+    public  String AK;
+    public  String URL_GEO = "https://api.map.baidu.com/geocoding/v3?";
+    public  String URL_DIR = "https://api.map.baidu.com/directionlite/v1/driving?";
+    @Value("${sky.shop.address}")
+    public  String LOCAL_ADDRESS;
     @Autowired
     private OrderMapper orderMapper;
     @Autowired
@@ -50,18 +61,20 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 提交订单
+     *
      * @param ordersSubmitDTO
      * @return
      */
     @Override
     @Transactional
-    public OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) {
+    public OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) throws Exception {
         //1、校验地址是否为空
         AddressBook addressBook = addressBookMapper.selectById(ordersSubmitDTO.getAddressBookId());
         if (Objects.isNull(addressBook)) {
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
         //2、TODO 校验配送范围
+        checkOutOfRange(addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail());
         //3、校验购物车是否为空
         Long userId = BaseContext.getCurrentId();
         ShoppingCart shoppingCart = new ShoppingCart();
@@ -107,8 +120,10 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         return orderSubmitVO;
     }
+
     /**
      * 订单分页搜索
+     *
      * @return
      */
     @Override
@@ -129,6 +144,7 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 订单详情
+     *
      * @param id
      * @return
      */
@@ -145,8 +161,10 @@ public class OrderServiceImpl implements OrderService {
         //4、返回结果
         return orderVO;
     }
+
     /**
      * 取消订单
+     *
      * @return
      */
     @Override
@@ -156,25 +174,28 @@ public class OrderServiceImpl implements OrderService {
         //- 如果在待接单状态下取消订单，需要给用户退款
         Orders order = orderMapper.selectByOrderId(id);
         Integer status = order.getStatus();
-        if (status ==Orders.PENDING_PAYMENT||status==Orders.TO_BE_CONFIRMED) {
+        if (status == Orders.PENDING_PAYMENT || status == Orders.TO_BE_CONFIRMED) {
             Orders orders = Orders.builder()
                     .status(Orders.CANCELLED).id(id)
-                    .cancelTime(LocalDateTime.now()).build();
+                    .cancelTime(LocalDateTime.now())
+                    .cancelReason("用户取消")
+                    .build();
             orderMapper.updateById(orders);
             //并退款
-        }else {
+        } else {
             //通知商家
         }
     }
 
     /**
      * 再来一单
+     *
      * @param id
      */
     @Override
     @Transactional
     public void repetition(Long id) {
-         // 查询当前用户id
+        // 查询当前用户id
         Long userId = BaseContext.getCurrentId();
 
         // 根据订单id查询当前订单详情
@@ -185,7 +206,7 @@ public class OrderServiceImpl implements OrderService {
             ShoppingCart shoppingCart = new ShoppingCart();
 
             // 将原订单详情里面的菜品信息重新复制到购物车对象中
-            BeanUtils.copyProperties(x, shoppingCart, "id");
+            BeanUtils.copyProperties(x, shoppingCart);
             shoppingCart.setUserId(userId);
             shoppingCart.setCreateTime(LocalDateTime.now());
 
@@ -209,17 +230,19 @@ public class OrderServiceImpl implements OrderService {
             orderVO.setOrderDishes(getOrderDishesStr(orderDetails));
             orderVO.setOrderDetailList(orderDetails);
         });
-        Page<OrderVO> p=(Page<OrderVO>) orderVOS;
-        return new PageResult(p.getTotal(),p.getResult());
+        Page<OrderVO> p = (Page<OrderVO>) orderVOS;
+        return new PageResult(p.getTotal(), p.getResult());
     }
-    private String getOrderDishesStr(List<OrderDetail> orderDetails){
-        StringBuilder sb=new StringBuilder();
-        orderDetails.forEach(orderDetail -> sb.append(orderDetail.getName()+"*"+orderDetail.getNumber()+";"));
+
+    private String getOrderDishesStr(List<OrderDetail> orderDetails) {
+        StringBuilder sb = new StringBuilder();
+        orderDetails.forEach(orderDetail -> sb.append(orderDetail.getName() + "*" + orderDetail.getNumber() + ";"));
         return sb.toString();
     }
 
     /**
      * 订单详情
+     *
      * @param id
      * @return
      */
@@ -231,9 +254,11 @@ public class OrderServiceImpl implements OrderService {
         orderVO.setOrderDetailList(orderDetailMapper.getByOrderId(id));
         return orderVO;
     }
+
     /**
      * 管理端取消订单
-     * @param id
+     *
+     * @param ordersCancelDTO
      */
     @Override
     public void cancelOrder(OrdersCancelDTO ordersCancelDTO) {
@@ -243,9 +268,9 @@ public class OrderServiceImpl implements OrderService {
         orders.setStatus(Orders.CANCELLED);
         orderMapper.updateById(orders);
     }
+
     /**
      * 查询各个状态的数量
-     * @param ordersConfirmDTO
      */
     @Override
     public OrderStatisticsVO statistics() {
@@ -256,8 +281,10 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         return vo;
     }
+
     /**
      * 支付
+     *
      * @param ordersPaymentDTO
      * @return
      */
@@ -268,8 +295,10 @@ public class OrderServiceImpl implements OrderService {
                 .payStatus(Orders.PAID).checkoutTime(LocalDateTime.now()).build();
         orderMapper.updateById(order);
     }
+
     /**
      * 接订单
+     *
      * @param ordersConfirmDTO
      */
     @Override
@@ -279,8 +308,10 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         orderMapper.updateById(order);
     }
+
     /**
      * 拒绝订单
+     *
      * @param ordersRejectionDTO
      */
     @Override
@@ -309,5 +340,42 @@ public class OrderServiceImpl implements OrderService {
                 .deliveryTime(LocalDateTime.now())
                 .build();
         orderMapper.updateById(order);
+    }
+
+    public String getGeo(String address) throws Exception {
+        Map<String, String> map = new HashMap<>();
+        map.put("address", address);
+        map.put("output", "json");
+        map.put("ak", AK);
+        String s = HttpClientUtil.doGet(URL_GEO, map);
+        ObjectMapper objectMapper = new ObjectMapper();
+        if (Integer.parseInt(objectMapper.readTree(s).get("status").toString()) != 0) {
+            throw new OrderBusinessException("地址解析失败");
+        }
+        JsonNode rootNode = objectMapper.readTree(s);
+        JsonNode lng = rootNode.get("result").get("location").get("lng");
+        JsonNode lat = rootNode.get("result").get("location").get("lat");
+        return lat.toString() + "," + lng.toString();
+    }
+
+    public void checkOutOfRange(String address) throws Exception {
+        Map<String, String> map = new HashMap<>();
+        map.put("origin", getGeo(LOCAL_ADDRESS));
+        map.put("destination", getGeo(address));
+        map.put("ak", AK);
+        String s = HttpClientUtil.doGet(URL_DIR, map);
+        //数据解析
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(s);
+        if (!rootNode.get("status").toString().equals("0")) {
+            throw new OrderBusinessException("配送路线规划失败");
+        }
+        JsonNode resultNode = rootNode.get("result").get("routes").get(0).get("distance");
+        int distance = Integer.parseInt((resultNode).toString());
+        if (distance > 5000) {
+            //配送距离超过5000米
+            throw new OrderBusinessException("超出配送范围");
+        }
+        log.info("距离:{}",distance);
     }
 }

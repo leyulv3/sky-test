@@ -17,7 +17,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/submit")
-    private Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO){
+    private Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO) throws Exception {
         OrderSubmitVO submit = orderService.submit(ordersSubmitDTO);
         return Result.success(submit);
     }
@@ -36,13 +36,18 @@ public class OrderController {
         orderService.cancel(id);
         return Result.success();
     }
+
+    /**
+     * 再来一单
+     * @param id
+     * @return
+     */
     @PostMapping("/repetition/{id}")
     public Result repetition(@PathVariable Long id){
         orderService.repetition(id);
         return Result.success();
     }
-    //http://localhost:8080/user/order/payment
-    //Request Method: PUT
+
     @PutMapping("/payment")
     public Result payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO){
         orderService.payment(ordersPaymentDTO);

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public interface OrderService {
-    OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO);
+    OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) throws Exception;
 
     PageResult historyOrders(Integer page,Integer pageSize,Integer status);
 
