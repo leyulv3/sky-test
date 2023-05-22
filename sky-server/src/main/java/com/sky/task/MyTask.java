@@ -1,15 +1,16 @@
-package com.sky.config;
+package com.sky.task;
 
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.webscoket.WebSocketServer;
 import io.jsonwebtoken.lang.Collections;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +23,17 @@ public class MyTask {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
+
+    /**
+     * 通过WebSocket每隔5秒向客户端发送消息
+     */
+    @Scheduled(cron = "0/5 * * * * ?")
+    public void sendMessageToClient() {
+        webSocketServer.sendToAllClient("这是来自服务端的消息：" + DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalDateTime.now()));
+    }
 
     /**
      * 处理支付超时订单

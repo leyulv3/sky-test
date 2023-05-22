@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public interface OrderService {
     OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) throws Exception;
 
-    PageResult historyOrders(Integer page,Integer pageSize,Integer status);
+    PageResult historyOrders(OrdersPageQueryDTO ordersPageQueryDTO);
 
 
     OrderVO orderDetail(Long id);
@@ -39,4 +39,6 @@ public interface OrderService {
     void delivery(Long id);
 
     void complete(Long id);
+
+    void reminder(Long id);
 }

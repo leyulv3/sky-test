@@ -16,9 +16,8 @@
         <if test="rejectionReason != null and rejectionReason != ''">rejection_reason = #{rejectionReason},</if>
         <if test="estimatedDeliveryTime != null">estimated_delivery_time = #{estimatedDeliveryTime},</if>
     </set>
-where
-    <if test="id != null"> id = #{id}</if>
-    <if test="id==null and number != null"> number = #{number}</if>
+        where id = #{id}
+
 </update>
 
 

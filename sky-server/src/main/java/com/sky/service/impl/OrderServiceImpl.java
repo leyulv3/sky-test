@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,7 @@ import com.sky.vo.OrderOverViewVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.webscoket.WebSocketServer;
 import io.jsonwebtoken.lang.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -45,11 +47,11 @@ import static com.sky.entity.Orders.PENDING_PAYMENT;
 @Slf4j
 public class OrderServiceImpl implements OrderService {
     @Value("${sky.shop.AK}")
-    public  String AK;
-    public  String URL_GEO = "https://api.map.baidu.com/geocoding/v3?";
-    public  String URL_DIR = "https://api.map.baidu.com/directionlite/v1/driving?";
+    public String AK;
+    public String URL_GEO = "https://api.map.baidu.com/geocoding/v3?";
+    public String URL_DIR = "https://api.map.baidu.com/directionlite/v1/driving?";
     @Value("${sky.shop.address}")
-    public  String LOCAL_ADDRESS;
+    public String LOCAL_ADDRESS;
     @Autowired
     private OrderMapper orderMapper;
     @Autowired
@@ -58,6 +60,8 @@ public class OrderServiceImpl implements OrderService {
     private ShoppingCartMapper shoppingCartMapper;
     @Autowired
     private OrderDetailMapper orderDetailMapper;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 提交订单
@@ -73,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
         if (Objects.isNull(addressBook)) {
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
-        //2、TODO 校验配送范围
+        //2、校验配送范围
         checkOutOfRange(addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail());
         //3、校验购物车是否为空
         Long userId = BaseContext.getCurrentId();
@@ -127,10 +131,10 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public PageResult historyOrders(Integer page, Integer pageSize, Integer status) {
-        PageHelper.startPage(page, pageSize);
+    public PageResult historyOrders(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
         //分页查询订单
-        Page<Orders> p = (Page<Orders>) orderMapper.selectHistoryOrders(BaseContext.getCurrentId(), status);
+        Page<Orders> p = (Page<Orders>) orderMapper.selectHistoryOrders(BaseContext.getCurrentId(), ordersPageQueryDTO.getStatus());
         //将每个订单的详细插入订单中
         List<OrderVO> list = new ArrayList<>();
         for (Orders orders : p) {
@@ -176,11 +180,11 @@ public class OrderServiceImpl implements OrderService {
         //- 派送中状态下，用户取消订单需电话沟通商家
         //- 如果在待接单状态下取消订单，需要给用户退款
         Orders order = orderMapper.selectByOrderId(id);
-        if (order==null){
+        if (order == null) {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
         Integer status = order.getStatus();
-        if (status>2){
+        if (status > 2) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
         if (status == Orders.PENDING_PAYMENT || status == Orders.TO_BE_CONFIRMED) {
@@ -283,12 +287,11 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public OrderStatisticsVO statistics() {
-        OrderStatisticsVO vo = OrderStatisticsVO.builder()
+        return OrderStatisticsVO.builder()
                 .toBeConfirmed(orderMapper.selectStatistics(Orders.TO_BE_CONFIRMED))
                 .confirmed(orderMapper.selectStatistics(Orders.CONFIRMED))
                 .deliveryInProgress(orderMapper.selectStatistics(Orders.DELIVERY_IN_PROGRESS))
                 .build();
-        return vo;
     }
 
     /**
@@ -299,12 +302,22 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void payment(OrdersPaymentDTO ordersPaymentDTO) {
+        Orders orders = orderMapper.getByNumberAndUserId(ordersPaymentDTO.getOrderNumber());
         Orders order = Orders.builder()
-                .number(ordersPaymentDTO.getOrderNumber()).status(Orders.TO_BE_CONFIRMED)
-                .payStatus(Orders.PAID).checkoutTime(LocalDateTime.now()).build();
+                .id(orders.getId())
+                .number(ordersPaymentDTO.getOrderNumber())
+                .status(Orders.TO_BE_CONFIRMED)
+                .payStatus(Orders.PAID)
+                .checkoutTime(LocalDateTime.now()).build();
         orderMapper.updateById(order);
-    }
+        Map map = new HashMap();
+        map.put("type", 1);//消息类型，1表示来单提醒
+        map.put("orderId", orders.getId());
+        map.put("content", "订单号：" + ordersPaymentDTO.getOrderNumber());
 
+        //通过WebSocket实现来单提醒，向客户端浏览器推送消息
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
+    }
     /**
      * 接订单
      *
@@ -351,6 +364,22 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateById(order);
     }
 
+    @Override
+    public void reminder(Long id) {
+        // 查询订单是否存在
+        Orders orders = orderMapper.selectByOrderId(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        //基于WebSocket实现催单
+        Map map = new HashMap();
+        map.put("type", 2);//2代表用户催单
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orders.getNumber());
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
+    }
+
     public String getGeo(String address) throws Exception {
         Map<String, String> map = new HashMap<>();
         map.put("address", address);
@@ -385,6 +414,7 @@ public class OrderServiceImpl implements OrderService {
             //配送距离超过5000米
             throw new OrderBusinessException("超出配送范围");
         }
-        log.info("距离:{}",distance);
+        log.info("距离:{}", distance);
     }
+
 }

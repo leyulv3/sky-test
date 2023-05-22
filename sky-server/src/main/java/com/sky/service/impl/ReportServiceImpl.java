@@ -112,7 +112,6 @@ public class ReportServiceImpl implements ReportService {
                 .orderCountList(StringUtils.join(orderCountList, ","))
                 .validOrderCountList(StringUtils.join(orderCountList, ","))
                 .build();
-        log.info("build:{}", build);
         StringUtils.join(orderCountList, ",");
         return build;
     }

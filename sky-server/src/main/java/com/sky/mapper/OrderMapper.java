@@ -3,13 +3,9 @@ package com.sky.mapper;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderVO;
-import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.*;
-import org.springframework.core.annotation.Order;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -41,4 +37,6 @@ public interface OrderMapper {
 
     @Select("SELECT name,sum(od.number) as number from order_detail od ,orders o where o.id=od.order_id and o.status = 5 and order_time between #{begin} and #{end} group by name order by number desc limit 0, 10")
     Map<String,Integer> selectMap(Map map);
+    @Select("select * from orders where number=#{outTradeNo}")
+    Orders getByNumberAndUserId(String outTradeNo);
 }

@@ -1,5 +1,6 @@
 package com.sky.controller.user;
 
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.dto.PageResult;
@@ -22,9 +23,8 @@ public class OrderController {
         return Result.success(submit);
     }
     @GetMapping("/historyOrders")
-    public Result<PageResult> historyOrders(@RequestParam(value = "page",defaultValue = "1") Integer page ,
-                                            @RequestParam(value = "pageSize",defaultValue = "10")Integer pageSize,Integer status){
-        PageResult pageResult = orderService.historyOrders(page, pageSize, status);
+    public Result<PageResult> historyOrders(OrdersPageQueryDTO ordersPageQueryDTO){
+        PageResult pageResult = orderService.historyOrders(ordersPageQueryDTO);
         return Result.success(pageResult);
     }
     @GetMapping("/orderDetail/{id}")
@@ -51,6 +51,18 @@ public class OrderController {
     @PutMapping("/payment")
     public Result payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO){
         orderService.payment(ordersPaymentDTO);
+        return Result.success();
+    }
+
+    /**
+     * 用户催单
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/reminder/{id}")
+    public Result reminder(@PathVariable("id") Long id) {
+        orderService.reminder(id);
         return Result.success();
     }
 }
