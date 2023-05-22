@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -73,9 +75,9 @@ public class ReportServiceImpl implements ReportService {
             totalUserList.add(userCount);
         });
         return UserReportVO.builder()
-                .dateList(StringUtils.join(dates,","))
-                .newUserList(StringUtils.join(newUserList,","))
-                .totalUserList(StringUtils.join(totalUserList,","))
+                .dateList(StringUtils.join(dates, ","))
+                .newUserList(StringUtils.join(newUserList, ","))
+                .totalUserList(StringUtils.join(totalUserList, ","))
                 .build();
     }
 
@@ -125,11 +127,13 @@ public class ReportServiceImpl implements ReportService {
         //    private String numberList;
         List<LocalDate> dates = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
-        map.put("begin",LocalDateTime.of(begin,LocalTime.MIN));
-        map.put("end",LocalDateTime.of(end,LocalTime.MAX));
-        map.put("status",Orders.COMPLETED);
-        Map<String,Integer> orders = orderMapper.selectMap(map);
-        log.info("orders:{}",orders);
-        return null;
+        map.put("begin", LocalDateTime.of(begin, LocalTime.MIN));
+        map.put("end", LocalDateTime.of(end, LocalTime.MAX));
+        map.put("status", Orders.COMPLETED);
+        List<GoodsSalesDTO> orders = orderMapper.selectMap(map);
+        return SalesTop10ReportVO.builder()
+                .nameList(StringUtils.join(orders.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList()), ","))
+                .numberList(StringUtils.join(orders.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList()), ","))
+                .build();
     }
 }
