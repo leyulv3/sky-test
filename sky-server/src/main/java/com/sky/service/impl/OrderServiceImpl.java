@@ -129,7 +129,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public PageResult historyOrders(Integer page, Integer pageSize, Integer status) {
         PageHelper.startPage(page, pageSize);
+        //分页查询订单
         Page<Orders> p = (Page<Orders>) orderMapper.selectHistoryOrders(BaseContext.getCurrentId(), status);
+        //将每个订单的详细插入订单中
         List<OrderVO> list = new ArrayList<>();
         for (Orders orders : p) {
             // 查询订单明细
@@ -139,6 +141,7 @@ public class OrderServiceImpl implements OrderService {
             orderVO.setOrderDetailList(orderDetails);
             list.add(orderVO);
         }
+        //返回结果
         return new PageResult(p.getTotal(), list);
     }
 
@@ -173,10 +176,17 @@ public class OrderServiceImpl implements OrderService {
         //- 派送中状态下，用户取消订单需电话沟通商家
         //- 如果在待接单状态下取消订单，需要给用户退款
         Orders order = orderMapper.selectByOrderId(id);
+        if (order==null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
         Integer status = order.getStatus();
+        if (status>2){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
         if (status == Orders.PENDING_PAYMENT || status == Orders.TO_BE_CONFIRMED) {
             Orders orders = Orders.builder()
-                    .status(Orders.CANCELLED).id(id)
+                    .status(Orders.CANCELLED)
+                    .id(id)
                     .cancelTime(LocalDateTime.now())
                     .cancelReason("用户取消")
                     .build();
@@ -222,7 +232,6 @@ public class OrderServiceImpl implements OrderService {
         PageHelper.startPage(queryDTO.getPage(), queryDTO.getPageSize());
         // 查询订单信息
         List<OrderVO> orderVOS = orderMapper.selectSearch(queryDTO);
-
         orderVOS.forEach(orderVO -> {
             // 查询订单明细
             List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(orderVO.getId());

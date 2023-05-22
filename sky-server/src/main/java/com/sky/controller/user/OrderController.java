@@ -53,6 +53,4 @@ public class OrderController {
         orderService.payment(ordersPaymentDTO);
         return Result.success();
     }
-
-
 }

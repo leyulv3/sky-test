@@ -14,12 +14,13 @@
         <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
         <if test="checkoutTime != null">checkout_time = #{checkoutTime},</if>
         <if test="rejectionReason != null and rejectionReason != ''">rejection_reason = #{rejectionReason},</if>
-        <if test="estimatedDeliveryTime != null">estimated_delive = #{estimatedDeliveryTime},</if>
+        <if test="estimatedDeliveryTime != null">estimated_delivery_time = #{estimatedDeliveryTime},</if>
     </set>
 where
     <if test="id != null"> id = #{id}</if>
     <if test="id==null and number != null"> number = #{number}</if>
 </update>
+
 
 
     <select id="selectHistoryOrders" resultType="com.sky.entity.Orders">
@@ -34,7 +35,6 @@ where
     </select>
     <select id="selectSearch" resultType="com.sky.vo.OrderVO">
         select * from orders
-
         <where>
             <if test="number!=null and number!=''">
                 number like concat('%',#{number},'%')
@@ -55,5 +55,22 @@ where
         select count(*)
         from orders
         where status = #{status}
+    </select>
+    <select id="selectOverOrder" resultType="com.sky.entity.Orders">
+        select * from orders where status=#{status} and  #{orderTime} > order_time
+    </select>
+    <select id="getTotal" resultType="java.lang.Integer">
+        select count(*) from orders
+        <where>
+            <if test="begin!=null">
+                order_time between #{begin} and #{end}
+            </if>
+            <if test="status!=null">
+            and status=#{status}
+            </if>
+        </where>
+    </select>
+    <select id="selectTop10" resultType="java.util.Map">
+
     </select>
 </mapper>
