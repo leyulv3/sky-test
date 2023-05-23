@@ -10,10 +10,9 @@ import java.time.LocalDateTime;
 public interface UserMapper {
     @Select("select * from user where openid=#{openid}")
     User selectByOpenId(String openId);
-
     void insertUser(User newUser);
     @Select("select count(*) from user where create_time between #{startTime} and #{endTime}")
-    String selectCountNewUser(LocalDateTime startTime, LocalDateTime endTime);
+    Integer selectCountNewUser(LocalDateTime startTime, LocalDateTime endTime);
     @Select("select count(*) from user")
-    String selectCountUser();
+    Integer selectCountUser();
 }

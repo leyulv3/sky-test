@@ -53,7 +53,11 @@
     <select id="selectStatistics" resultType="java.lang.Integer">
         select count(*)
         from orders
-        where status = #{status}
+        <where>
+         <if test="status!=null">
+            and status=#{status}
+            </if>
+        </where>
     </select>
     <select id="selectOverOrder" resultType="com.sky.entity.Orders">
         select * from orders where status=#{status} and  #{orderTime} > order_time

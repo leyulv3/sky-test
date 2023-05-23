@@ -32,4 +32,6 @@ public interface DishMapper {
     List<Dish> selectByIds(List<Long> ids);
 
     List<DishVO> selectWithFlavor(Dish dish);
+    @Select("select count(*) from dish where status=#{status}")
+    int countDish(Integer status);
 }

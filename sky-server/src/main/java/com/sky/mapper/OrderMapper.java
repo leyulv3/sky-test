@@ -31,12 +31,12 @@ public interface OrderMapper {
 
     List<Orders> selectOverOrder(LocalDateTime orderTime, Integer status);
 
-    @Select("select sum(amount) from orders where order_time between #{startTime} and #{endTime} and status=#{status} ")
+    @Select("select sum(amount) from orders where order_time between #{begin} and #{end} and status=#{status} ")
     Double sumByMap(Map map);
 
     int getTotal(Map map);
 
-    @Select("SELECT name,sum(od.number)  as number from order_detail od ,orders o where o.id=od.order_id and o.status = 5 and order_time between #{begin} and #{end} group by name order by number desc limit 0, 10")
+    @Select("SELECT name,sum(od.number)  as number from order_detail od ,orders o where o.id=od.order_id and o.status = 5 and order_time between #{startTime} and #{endTime} group by name order by number desc limit 0, 10")
     List<GoodsSalesDTO> selectMap(Map map);
     @Select("select * from orders where number=#{outTradeNo}")
     Orders getByNumberAndUserId(String outTradeNo);

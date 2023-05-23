@@ -44,4 +44,6 @@ public interface SetMealMapper {
             "from setmeal_dish sd left join dish d on sd.dish_id = d.id " +
             "where sd.setmeal_id = #{id}")
     List<DishItemVO> getDishItemBySetmealId(Long id);
+    @Select("select count(*) from setmeal where status=#{status}")
+    int countDish(Integer status);
 }

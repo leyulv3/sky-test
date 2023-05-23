@@ -42,8 +42,8 @@ public class ReportServiceImpl implements ReportService {
             Map map = new HashMap<>();
             LocalDateTime startTime = LocalDateTime.of(date, LocalTime.MIN);
             LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
-            map.put("startTime", startTime);
-            map.put("endTime", endTime);
+            map.put("begin", startTime);
+            map.put("end", endTime);
             map.put("status", Orders.COMPLETED);
             Double turnover = orderMapper.sumByMap(map);
             turnover = turnover == null ? 0.0 : turnover;
@@ -69,8 +69,8 @@ public class ReportServiceImpl implements ReportService {
         dates.forEach(date -> {
             LocalDateTime startTime = LocalDateTime.of(date, LocalTime.MIN);
             LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
-            int userCount = Integer.parseInt(userMapper.selectCountUser());
-            int userNewCount = Integer.parseInt(userMapper.selectCountNewUser(startTime, endTime));
+            int userCount = userMapper.selectCountUser();
+            int userNewCount = userMapper.selectCountNewUser(startTime, endTime);
             newUserList.add(userNewCount);
             totalUserList.add(userCount);
         });
@@ -127,8 +127,8 @@ public class ReportServiceImpl implements ReportService {
         //    private String numberList;
         List<LocalDate> dates = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
-        map.put("begin", LocalDateTime.of(begin, LocalTime.MIN));
-        map.put("end", LocalDateTime.of(end, LocalTime.MAX));
+        map.put("startTime", LocalDateTime.of(begin, LocalTime.MIN));
+        map.put("endTime", LocalDateTime.of(end, LocalTime.MAX));
         map.put("status", Orders.COMPLETED);
         List<GoodsSalesDTO> orders = orderMapper.selectMap(map);
         return SalesTop10ReportVO.builder()
