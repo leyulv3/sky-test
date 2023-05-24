@@ -49,8 +49,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //总订单数
         Integer total = orderMapper.getTotal(map);
         double orderCompletionRate = 0.0;
-        if (turnover != null && total != null) {
-            orderCompletionRate = turnover / total;
+        if (validOrderCount != null && total != null) {
+            orderCompletionRate = validOrderCount / total;
         }
         //平均客单价
         double unitPrice = 0.0;

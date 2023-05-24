@@ -58,7 +58,6 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
-
         List<LocalDate> dates = new ArrayList<>();
         while (!begin.equals(end)) {
             begin = begin.plusDays(1);

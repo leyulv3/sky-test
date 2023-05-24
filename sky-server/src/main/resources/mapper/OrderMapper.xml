@@ -73,7 +73,5 @@
             </if>
         </where>
     </select>
-    <select id="selectTop10" resultType="java.util.Map">
 
-    </select>
 </mapper>

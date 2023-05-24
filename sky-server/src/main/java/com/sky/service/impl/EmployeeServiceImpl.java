@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,10 +28,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private EmployeeMapper employeeMapper;
-
-    @Autowired
-    private HttpServletRequest request;
-
 
     /**
      * 员工登录
@@ -71,15 +66,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     /**
      * 新增员工
      *
-     * @param employeeDTO
+     * @param queryDTO  新增员工信息
      */
     @Override
     public PageResult page(EmployeePageQueryDTO queryDTO) {
         //使用分页插件，传入page、pageSize字段
         PageHelper.startPage(queryDTO.getPage(), queryDTO.getPageSize());
         //根据传入条件进行查询
-        List<Employee> employees = employeeMapper.selectEmpPage(queryDTO.getName());
-        Page<Employee> p = (Page<Employee>) employees;
+        Page<Employee> p = (Page<Employee>) employeeMapper.selectEmpPage(queryDTO.getName());
         //将查询结果封存到PageResult中返回结果
         return new PageResult(p.getTotal(), p.getResult());
     }
